@@ -1,7 +1,10 @@
-import argparse, logging
+import argparse, logging, io
+from pathlib import Path
+from dotenv import dotenv_values
 
-logging.basicConfig(handlers=[logging.FileHandler(filename='./log/app.log', encoding='utf-8', mode='a+')],
-  format='%(levelname)s : %(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S', level=logging.INFO)
+config = dotenv_values(".env")
+log_file = io.open(str(Path.home()) + config.get('LOG_DIRECTORY'), mode='a+', encoding='utf-8')
+logging.basicConfig(stream=log_file, format='%(levelname)s : %(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S', level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class CommandLine:
