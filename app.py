@@ -36,6 +36,6 @@ for enginno in enginno_list:
         logger.info(target.get('fields')['เลขเครื่อง'] + " will update " + str({ "เลขสัญญาขาย": source['stockno'].values[0], "วันที่ตัดขาย": source_date.isoformat() }))
       else:
         table.update(target.get('id'), { "เลขสัญญาขาย": source['stockno'].values[0], "วันที่ตัดขาย": source_date.isoformat()})
-        logger.info("Update", target.get('fields')['เลขเครื่อง'], "with", { "เลขสัญญาขาย": source['stockno'].values[0], "วันที่ตัดขาย": source_date.isoformat()})
+        logger.info("Update " + target.get('fields')['เลขเครื่อง'] + " with " + str({ "เลขสัญญาขาย": source['stockno'].values[0], "วันที่ตัดขาย": source_date.isoformat()}))
     # else:
     #   print(target.get('id'), "already got update")
