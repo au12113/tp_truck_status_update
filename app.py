@@ -25,10 +25,13 @@ enginno_list = current_stock['enginno'].unique()
 api_key = config.get('AIRTABLE_API_KEY')
 table = Table(api_key, base_id=config.get('AIRTABLE_BASE_ID'), table_name=config.get('AIRTABLE_TABLE_ID'))
 for enginno in enginno_list:
-  formula = "LEFT({เลขเครื่อง}, 6)='"+str(enginno)+"'"
+  if '-' in enginno:
+    formula = "OR({เลขเครื่อง}='" + str(enginno) + "พ่วง', {เลขเครื่อง}='" + str(enginno) + "หาง')"
+  else:
+    formula = "OR({เลขเครื่อง}='" + str(enginno) + "', FIND('" + str(enginno) + "-อู่', {เลขเครื่อง}))"
   fetched = table.all(formula=formula)
   for target in fetched:
-    source = current_stock.loc[current_stock['enginno']==enginno]
+    source = current_stock.loc[current_stock['enginno']==enginno].sort_values('stockdate', ascending=False)
     if ('เลขสัญญาขาย' not in target.get('fields')) or ('วันที่ตัดขาย' not in target.get('fields')):
       date_string = source['stockdate'].values[0]
       source_date = datetime(year=int(date_string[0:4]), month=int(date_string[4:6]), day=int(date_string[6:8]))
@@ -37,5 +40,3 @@ for enginno in enginno_list:
       else:
         table.update(target.get('id'), { "เลขสัญญาขาย": source['stockno'].values[0], "วันที่ตัดขาย": source_date.isoformat()})
         logger.info("Update " + target.get('fields')['เลขเครื่อง'] + " with " + str({ "เลขสัญญาขาย": source['stockno'].values[0], "วันที่ตัดขาย": source_date.isoformat()}))
-    # else:
-    #   print(target.get('id'), "already got update")

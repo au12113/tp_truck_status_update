@@ -27,11 +27,19 @@ select s1.branchno,
 		when s2.model like any (array['1T%','MU-X']) then s2.model
 		else left(s2.submodel, 3)
 	end) as model_sales,
-	right(s2.enginno, 6) as enginno
+	ens2.enginno as tractor_enginno,
+	(case
+		when s2.stockno like '_______-_' then CONCAT(RIGHT(ens2.enginno, 6), '-')
+		else right(s2.enginno, 6)
+	end) as enginno
 from tblmststock s1
 left join tbldtlstock s2
 using (stockno)
+left join tbldtlstock ens2
+on LEFT(s2.stockno, 7) = ens2.stockno
 where s1.stockno != ''
 	and s1.branchno != '00'
-	and s1.stockno not similar to '[^0-9][^0-9]%'
-	and s2.model like any(array['2-T%', '3-T%', '6-T%', '10-W%', '12-W%', 'T/H%'])
+	and s1.stockno similar to '[ก-ฮ][0-9]{6}[-]?[0-9]?'
+	and s2.po_orderno like 'SV%'
+	and ( s2.model like any(array['2-T%', '3-T%', '6-T%', '10-W%', '12-W%', 'T/H%'])
+	or s2.stockno like '_______-_')
